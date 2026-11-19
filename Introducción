@@ -5,6 +5,23 @@ para garantizar su calidad. Posteriormente, los datos serán almacenados en un
 permitiendo gestionar información semiestructurada de manera eficiente. Una vez consolidada la base de datos, 
 se realizará un proceso de análisis y visualización de datos con el fin de identificar patrones, tendencias e información relevante del mercado inmobiliario. 
 Por último, se documentarán los resultados obtenidos y los insights generados a partir del análisis.  
+El mercado inmobiliario se caracteriza por su constante volumen de información disponible en plataformas digitales sobre ventas y alquileres de casas o apartamentos. No obstante, gran parte de esta información se encuentra dispersa y carece de un formato estructurado y unificado, lo que dificulta su aprovechamiento. 
+
+ 
+
+El presente proyecto describe el desarrollo de una solución técnica integral de análisis de datos que aborda este reto. 
+En dicho proyecto abarcará la extracción automatizada de información en sitios web, pasando por una etapa de transición y limpieza, 
+utilizando archivos CSV, hasta la implementación de una arquitectura de almacenamiento en MongoDB la cual nos permitirá recolectar datos 
+y desplegarlos en una fase de visualización y análisis estadístico que facilite la identificación de tendencias,patrones de precios. 
+Colecciones: 
+propiedades  
+vendedores  
+ubicaciones  
+caracteristicas  
+amenidades  
+historial_scraping  
+estadisticas_mercado  
+alertas_oportunidades
 
 Para ello, se propone una solución de análisis de datos que centraliza en MongoDB los anuncios de propiedades en venta en Costa Rica 
 y permite obtener información para la toma de decisiones. La solución sigue el flujo definido por el curso:
