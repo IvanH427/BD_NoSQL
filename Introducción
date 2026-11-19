@@ -1,0 +1,37 @@
+Abstract-El proyecto consiste en desarrollar una solución de análisis de datos utilizando información obtenida mediante técnicas de web scraping 
+desde un sitio web de bienes inmuebles enfocado en la venta de casas y apartamentos. 
+La primera etapa comprende la extracción automatizada de datos, su almacenamiento inicial en archivos CSV y la aplicación de procesos de limpieza y transformación 
+para garantizar su calidad. Posteriormente, los datos serán almacenados en una base de datos NoSQL utilizando MongoDB, 
+permitiendo gestionar información semiestructurada de manera eficiente. Una vez consolidada la base de datos, 
+se realizará un proceso de análisis y visualización de datos con el fin de identificar patrones, tendencias e información relevante del mercado inmobiliario. 
+Por último, se documentarán los resultados obtenidos y los insights generados a partir del análisis.  
+
+Para ello, se propone una solución de análisis de datos que centraliza en MongoDB los anuncios de propiedades en venta en Costa Rica 
+y permite obtener información para la toma de decisiones. La solución sigue el flujo definido por el curso:
+
+1. Carga: importación a MongoDB del conjunto de datos de 8 585 propiedades, obtenido mediante scraping. 
+2. Preparación: limpieza de datos (valores faltantes, nombres de provincia inconsistentes, precios atípicos y conversión de amenidades a arreglo). 
+3. Modelado: separación de la información en colecciones base (propiedades, ubicaciones y vendedores)
+
+Arquitectura de la base de datos
+La arquitectura propuesta para el desarrollo del proyecto se fundamenta en un proceso de tipo ETL (Extract, Transform and Load), 
+orientado al análisis de datos, y en esta ocasión al mercado inmobiliario mediante tecnologías de procesamiento de datos 
+y bases de datos NoSQL. El flujo de trabajo inicia con la extracción automatizada de información desde el sitio web Encuentra24 
+utilizando técnicas de web scraping desarrolladas en Python.  
+
+Durante el siguiente paso, se aplican un EDA (Exploratory Data Analysis) 
+donde realizamos un análisis a los datos extraídos en búsqueda de entender mejor los datos, realizar limpieza, 
+crear estructura para futuros análisis, así como eliminación de ruido. 
+
+Continuando con el proceso, una vez depurados los datos, con un nuevo archivo el cual será la fuente de datos con un formato “.csv”, 
+podremos proceder a crear la estructura de nuestra base de datos, donde guardaremos los datos en colecciones, las cuales almacenarán campos con datos numéricos, 
+cadenas de texto y mixtos. Las colecciones se segmentarán según los objetivos e indicadores que buscamos responder para este proyecto.  
+
+Finalmente, una vez la base de datos este establecida con una lógica sólida y validada, 
+podremos empezar el análisis de datos aprovechando los mecanismos que disponemos de MongoDB, las cuales usaremos para responder los indicadores claves del proyecto y, 
+encontrar cuáles visualizaciones se adaptan mejor a los datos para crear reportes relevantes para no solo darle valor a los datos, sino poder comunicar con ellos también. 
+
+Fuentes de datos:
+La fuente de datos fue el sitio encuentra24.com, específicamente usando los filtros: 
+
+Inicio > Bienes Raices > Venta > Casas
