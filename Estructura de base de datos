@@ -1,1 +1,279 @@
+Propiedades
+{
+    "_id": ObjectId(),
+    "titulo": "Casa moderna en Escazú",
+    "descripcion": "Casa de dos plantas con jardín y piscina",
+    "url": "https://...",
+    "precio_colon": 145000000,
+    "precio_dolar": 321851,
+    "provincia": "San José",
+    "ubicacion": "Escazú",
+    "baños": 3,
+    "dormitorios": 4,
+    "garajes": 2,
+    "amenidades": [
+        "Piscina",
+        "Rancho BBQ",
+        "Seguridad"
+    ],
+    "fecha": "14/09/2026",
+}
+-------------------------------------------------------------------------
+Localizacion
+{
+    "_id": ObjectId(),
+    "provincia": "San José",
+    "ubicacion": "Escazú",
+    "cantidad_propiedades": 532
+}
+-------------------------------------------------------------------------
+Vendedores
+{
+    "_id": ObjectId(),
+    "nombre_contacto": "Juan Pérez",
+    "cantidad_propiedades": 15
+}
+-------------------------------------------------------------------------
+db.createCollection("historial_scraping");
+db.historial_scraping.insertOne({
+    fecha_carga: new Date(),
+    fuente: "Encuentra24",
+    cantidad_registros: 8585,
+    archivo_origen: "casas_limpias_mongodb_12.csv"
+});
+-------------------------------------------------------------------------
+db.createCollection("estadisticas_mercado");
+db.propiedades.aggregate([
+{
+    $group: {
+        _id: "$provincia",
 
+        precio_promedio_colon: {
+            $avg: "$precio_colon"
+        },
+
+        precio_promedio_dolar: {
+            $avg: "$precio_dolar"
+        },
+
+        cantidad_propiedades: {
+            $sum: 1
+        },
+
+        promedio_baños: {
+            $avg: "$baños"
+        },
+
+        promedio_dormitorios: {
+            $avg: "$dormitorios"
+        },
+
+        promedio_garajes: {
+            $avg: "$garajes"
+        }
+    }
+},
+{
+    $project: {
+        _id: 0,
+        provincia: "$_id",
+        precio_promedio_colon: 1,
+        precio_promedio_dolar: 1,
+        cantidad_propiedades: 1,
+        promedio_baños: 1,
+        promedio_dormitorios: 1,
+        promedio_garajes: 1
+    }
+},
+{
+    $out: "estadisticas_mercado"
+}
+]);
+-------------------------------------------------------------------------
+db.createCollection("tendencias_precio");
+db.properties.aggregate([
+{
+    $addFields: {
+        fecha_convertida: {
+            $dateFromString: {
+                dateString: "$fecha",
+                format: "%d/%m/%Y"
+            }
+        }
+    }
+},
+{
+    $group: {
+        _id: {
+            año: { $year: "$fecha_convertida" },
+            mes: { $month: "$fecha_convertida" },
+            provincia: "$provincia"
+        },
+
+        precio_promedio_colon: {
+            $avg: "$precio_colon"
+        },
+
+        precio_promedio_dolar: {
+            $avg: "$precio_dolar"
+        },
+
+        cantidad_propiedades: {
+            $sum: 1
+        },
+
+        fecha_captura: {
+            $first: "$fecha"
+        }
+    }
+},
+{
+    $project: {
+        _id: 0,
+
+        periodo: {
+            $concat: [
+                { $toString: "$_id.año" },
+                "-",
+                {
+                    $cond: [
+                        { $lt: ["$_id.mes", 10] },
+                        {
+                            $concat: [
+                                "0",
+                                { $toString: "$_id.mes" }
+                            ]
+                        },
+                        {
+                            $toString: "$_id.mes"
+                        }
+                    ]
+                }
+            ]
+        },
+
+        fecha_captura: 1,
+
+        provincia: "$_id.provincia",
+
+        precio_promedio_colon: {
+            $round: ["$precio_promedio_colon", 2]
+        },
+
+        precio_promedio_dolar: {
+            $round: ["$precio_promedio_dolar", 2]
+        },
+
+        cantidad_propiedades: 1,
+
+        tipo_cambio_crc_usd: {
+            $literal: 450.47
+        }
+    }
+},
+{
+    $out: "tendencias_precio"
+}
+]);
+-------------------------------------------------------------------------
+db.createCollection("ranking_vendedores");
+db.Propiedades.aggregate([
+{
+    $group: {
+        _id: "$vendedor_contacto",
+
+        cantidad_propiedades: {
+            $sum: 1
+        },
+
+        precio_promedio: {
+            $avg: "$precio_dolar"
+        }
+    }
+},
+{
+    $sort: {
+        cantidad_propiedades: -1
+    }
+},
+{
+    $project: {
+        _id: 0,
+        vendedor: "$_id",
+        cantidad_propiedades: 1,
+        precio_promedio: 1
+    }
+},
+{
+    $out: "ranking_vendedores"
+}
+]);
+db.createCollection("alertas_oportunidades");
+db.Propiedades.aggregate([
+{
+    $lookup: {
+        from: "estadisticas_mercado",
+        localField: "provincia",
+        foreignField: "provincia",
+        as: "estadistica"
+    }
+},
+{
+    $unwind: "$estadistica"
+},
+{
+    $match: {
+        $expr: {
+            $lt: [
+                "$precio_dolar",
+                { $multiply: ["$estadistica.precio_promedio_dolar", 0.75] }
+            ]
+        }
+    }
+},
+{
+    $project: {
+        _id: 0,
+        titulo: 1,
+        provincia: 1,
+        precio_propiedad: "$precio_dolar",
+        precio_promedio_provincia:
+            "$estadistica.precio_promedio_dolar",
+
+        tipo_alerta: {
+            $literal: "Precio inferior al promedio"
+        },
+
+        fecha_generacion: "$$NOW"
+    }
+},
+{
+    $out: "alertas_oportunidades"
+}
+]);
+-------------------------------------------------------------------------
+db.Propiedades.aggregate([
+{
+    $group: {
+        _id: {
+            provincia: "$provincia",
+            ubicacion: "$ubicacion"
+        },
+
+        cantidad_propiedades: {
+            $sum: 1
+        }
+    }
+},
+{
+    $project: {
+        _id: 0,
+        provincia: "$_id.provincia",
+        ubicacion: "$_id.ubicacion",
+        cantidad_propiedades: 1
+    }
+},
+{
+    $out: "Localizacion"
+}
+]);
